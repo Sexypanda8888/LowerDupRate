@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>降重工具</title>
+    <script src="https://cdn.bootcss.com/jquery/3.0.0/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container pt-5">
+        <div class="row">
+            <div class="col"></div>
+            <div class="col-lg-6 col-md-8 col-sm-10">
+                <div class="card">
+                    <div class="card-header">待降重文字</div>
+                    <div class="card-body">
+                        <div class="mt-1 mb-2">
+                            最少输出字数(默认不填)：<br><input id="token_num" placeholder="输出字数" value="">
+                        </div>
+                        正文:<br>
+                        <textarea  id="duplicate" name="" placeholder="输入需要降重的部分，不超过500字" style="height:250px;width: 100%;"></textarea>
+                    </div>
+                    <div class="card-footer">
+                        <button id="submit" class="btn btn-outline-secondary" type="button" id="button-addon2" onclick="sendText()">降重</button>
+                    </div>
+                </div>
+                <div id="processing" class=" mt-2" style="display: none;">
+                    <center> 
+                        <span id="wait1" class="spinner-border spinner-border-sm" ></span>
+                        <span id="wait2" >&nbsp;&nbsp;正在努力降重中，请稍等！</span> 
+                    </center>
+                </div>
+
+                <div class="card mt-2">
+                    <div class="card-header">降重后    
+                     </div>
+                    <div class="card-body">
+                        <textarea readonly="true" id="lowered" style="height:250px;width: 100%;"></textarea>
+                    </div>
+                </div>
+                    
+            </div>
+            <div class="col"></div>
+        </div>
+        <div class="row">
+                
+        </div>
+        <div class="row">
+            <div class="col"></div>
+            <div id="table" class="col-lg-6 col-md-8 col-sm-10">
+                
+            </div>
+            <div class="col"></div>
+        </div>
+    </div>
+    
+    <script>
+        function checkNum(val){
+            var regPos = /^[0-9]+$/; //判断是否是数字。
+            if(regPos.test(val)){
+                return true;
+            }else{
+                return false;
+            }
+        }
+        function testNum(){
+            var val = $("#token_num").val()
+            if (val != ""){
+                if (checkNum(val) == true){
+                    return parseInt(val)
+                }
+                else{
+                    alert("字数设置不符合规范，将按照默认设置进行")
+                    return -1
+                }
+            }
+            else return -1
+            
+        }
+        function checkLength(text){
+            if (text.length>500 || text.length == 0){
+                return false
+            }
+            else return true
+        }  
+        function processon(){
+            $("#processing").css("display","block")
+        }
+        function processoff(){
+            $("#processing").css("display","none")
+        }
+
+        function sendText(){
+            processon()
+            $("#submit").attr("disabled",true)
+            var text = $("#duplicate").val()
+            var length = testNum()
+            if (checkLength(text)){
+                $.ajax({
+                        type: "POST",
+                        url: "http://127.0.0.1:5000/duplicate",
+                        dataType: 'json',
+                        data:{
+                            text:text,
+                            length:length
+                        },
+                        success: function (result) {
+                            //如果返回的code不是200,就把下面的回答框变成红色
+                            // if (result["code"]=="200"){
+                                
+                            // }
+                            // else{
+
+                            // }
+                            $("#lowered").val(result["text"])
+                            processoff()
+                            $("#submit").attr("disabled",false)
+                        },
+                        error: function(){
+                            alert("和后端交互发生异常！")
+                            processoff()
+                            $("#submit").attr("disabled",false)
+                        }
+                })
+            }
+            else{
+                alert("字数不符合规范")
+                processoff()
+                $("#submit").attr("disabled",false)
+            }
+        }
+    </script>
+</body>
+
+</html>
