@@ -62,7 +62,7 @@ def gpt_extract(text):
         res = r["choices"][0]["message"]["content"]
     except:
         with open("DEBUG.txt",'a') as f:
-            f.write(r.text)
+            f.write(str(r) + "\n")
         raise Exception("提取要点时发生错误，已经记录错误包信息")
     return res
     
@@ -70,7 +70,7 @@ def gpt_extract(text):
 def gpt_expand(text,length = -1):
     url = "https://api.openai.com/v1/chat/completions"
     headers = {
-        "Authorization": "Bearer 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",
+        "Authorization": Authorization,
         "Content-Type": "application/json"
     }
     if length == -1:
@@ -87,7 +87,7 @@ def gpt_expand(text,length = -1):
         res = r["choices"][0]["message"]["content"]
     except:
         with open("DEBUG.txt",'a') as f:
-            f.write(r.text)
+            f.write(str(r) + "\n")
         raise Exception("扩写时发生错误，已经记录错误包信息")
     return res
 
